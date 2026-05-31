@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform Mastery + Job-Ready Labs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .transition-all { transition: all 0.3s ease; }
+        .scale-102:hover { transform: scale(1.02); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        pre { font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; line-height: 1.5; }
+        .tab-btn { position: relative; padding: 0.5rem 1rem; border: none; background: none; color: #94a3b8; cursor: pointer; font-weight: 500; transition: color 0.3s ease; }
+        .tab-btn.active { color: #06b6d4; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #06b6d4; }
+        .quiz-option { transition: all 0.2s ease; }
+        .quiz-option:hover { background-color: #374151; border-color: #4b5563; }
+        .sticky-sidebar { position: sticky; top: 24px; }
+        .lab-content { background: #0f172a; border-left: 4px solid #0891b2; padding: 16px; border-radius: 8px; margin: 12px 0; }
+        .command-block { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 12px; margin: 10px 0; font-family: 'Monaco', monospace; font-size: 13px; color: #e2e8f0; overflow-x: auto; }
+        .success-box { background: #064e3b; border-left: 4px solid #10b981; padding: 12px; border-radius: 4px; margin: 10px 0; color: #d1fae5; }
+        .warning-box { background: #78350f; border-left: 4px solid #f59e0b; padding: 12px; border-radius: 4px; margin: 10px 0; color: #fef3c7; }
+        .info-box { background: #1e3a8a; border-left: 4px solid #3b82f6; padding: 12px; border-radius: 4px; margin: 10px 0; color: #dbeafe; }
+        .step-indicator { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #1e40af; color: white; font-weight: bold; margin-right: 12px; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div id="app" class="min-h-screen p-4 md:p-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="mb-8 fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div>
+                        <h1 class="text-4xl md:text-5xl font-bold mb-2 flex items-center gap-3">
+                            <span class="text-cyan-400">💼</span>
+                            Terraform: Job-Ready
+                        </h1>
+                        <p class="text-slate-400 text-lg">Fundamentals + Hands-On Labs + Interview Prep</p>
+                    </div>
+                    <div class="text-center bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                        <div id="progressPercent" class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">0%</div>
+                        <div id="progressText" class="text-sm text-slate-400">0/40+ Completed</div>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-700">
+                    <div id="progressBar" class="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Mode Selection -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 fade-in">
+                <button onclick="switchMode('learn')" class="p-6 rounded-lg border-2 border-cyan-600 bg-slate-800/30 hover:border-cyan-500 transition-all text-left">
+                    <div class="text-3xl mb-2">📚</div>
+                    <h3 class="font-bold text-lg mb-1">Learn Terraform</h3>
+                    <p class="text-sm text-slate-400">12 lessons + quizzes</p>
+                </button>
+                <button onclick="switchMode('labs')" class="p-6 rounded-lg border-2 border-slate-600 bg-slate-800/30 hover:border-slate-500 transition-all text-left">
+                    <div class="text-3xl mb-2">🛠️</div>
+                    <h3 class="font-bold text-lg mb-1">Job-Ready Labs</h3>
+                    <p class="text-sm text-slate-400">10 hands-on labs</p>
+                </button>
+            </div>
+
+            <!-- Learning Content (initially hidden) -->
+            <div id="learn-content" class="hidden">
+                <p class="text-center text-slate-400">Learning content goes here...</p>
+            </div>
+
+            <!-- Labs Content -->
+            <div id="labs-content" class="">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 fade-in">
+                    <!-- Labs Sidebar -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700 sticky-sidebar">
+                            <h3 class="font-bold mb-4 text-lg">Labs</h3>
+                            <div id="labsList" class="space-y-2 max-h-96 overflow-y-auto">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Labs Main -->
+                    <div class="lg:col-span-3">
+                        <div class="bg-slate-800/50 rounded-lg border border-slate-700 overflow-hidden">
+                            <div class="bg-gradient-to-r from-slate-800 to-slate-700 p-6 border-b border-slate-700">
+                                <h2 id="labTitle" class="text-3xl font-bold mb-2">Lab 1: Deploy Your First EC2</h2>
+                                <p id="labDesc" class="text-slate-400">Get hands-on with Terraform basics</p>
+                            </div>
+
+                            <div class="flex gap-1 bg-slate-900/50 p-4 border-b border-slate-700">
+                                <button class="tab-btn active" onclick="switchLabTab('overview')">📋 Overview</button>
+                                <button class="tab-btn" onclick="switchLabTab('walkthrough')">👣 Steps</button>
+                                <button class="tab-btn" onclick="switchLabTab('solution')">✅ Solution</button>
+                                <button class="tab-btn" onclick="switchLabTab('interview')">💼 Interview</button>
+                            </div>
+
+                            <div class="p-6 min-h-96">
+                                <div id="overviewContent" class="">
+                                    <div class="info-box">
+                                        <strong>🎯 Goal:</strong> Deploy an EC2 instance using Terraform
+                                    </div>
+                                    <div class="mt-4">
+                                        <h4 class="font-bold mb-2">What You'll Learn:</h4>
+                                        <ul class="list-disc list-inside space-y-1">
+                                            <li>Create terraform configuration files</li>
+                                            <li>Initialize a Terraform project</li>
+                                            <li>Plan and apply infrastructure</li>
+                                            <li>Manage cloud resources</li>
+                                            <li>Understand Terraform workflow</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div id="walkthroughContent" class="hidden">
+                                    <div class="space-y-4">
+                                        <div class="lab-content">
+                                            <span class="step-indicator">1</span>
+                                            <strong>Create directory and files</strong>
+                                            <div class="command-block">mkdir terraform-ec2
+cd terraform-ec2
+touch main.tf variables.tf outputs.tf</div>
+                                        </div>
+
+                                        <div class="lab-content">
+                                            <span class="step-indicator">2</span>
+                                            <strong>Create main.tf with AWS provider and EC2</strong>
+                                            <div class="command-block">terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_instance" "web" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "my-first-instance"
+  }
+}</div>
+                                        </div>
+
+                                        <div class="lab-content">
+                                            <span class="step-indicator">3</span>
+                                            <strong>Create variables.tf</strong>
+                                            <div class="command-block">variable "aws_region" {
+  type    = string
+  default = "us-east-1"
+}
+
+variable "instance_type" {
+  type    = string
+  default = "t2.micro"
+}</div>
+                                        </div>
+
+                                        <div class="lab-content">
+                                            <span class="step-indicator">4</span>
+                                            <strong>Create outputs.tf</strong>
+                                            <div class="command-block">output "instance_id" {
+  value = aws_instance.web.id
+}
+
+output "public_ip" {
+  value = aws_instance.web.public_ip
+}</div>
+                                        </div>
+
+                                        <div class="lab-content">
+                                            <span class="step-indicator">5</span>
+                                            <strong>Run Terraform commands</strong>
+                                            <div class="command-block">terraform init      # Initialize
+terraform plan      # Preview
+terraform apply     # Deploy</div>
+                                        </div>
+
+                                        <div class="success-box">
+                                            <strong>✅ Success!</strong> Your EC2 instance is running
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="solutionContent" class="hidden">
+                                    <div class="success-box">
+                                        <strong>✅ Complete Solution</strong>
+                                    </div>
+                                    <div class="lab-content">
+                                        <strong>main.tf - Production Quality</strong>
+                                        <div class="command-block">terraform {
+  required_version = ">= 1.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
+resource "aws_security_group" "allow_ssh" {
+  name = "allow-ssh"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["YOUR_IP/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_instance" "web" {
+  ami                    = "ami-0c55b159cbfafe1f0"
+  instance_type          = var.instance_type
+  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+
+  tags = {
+    Name        = "web-instance"
+    Environment = "learning"
+  }
+}</div>
+                                    </div>
+                                </div>
+
+                                <div id="interviewContent" class="hidden">
+                                    <div class="space-y-4">
+                                        <div class="lab-content">
+                                            <strong>Q: Walk me through deploying an EC2 with Terraform</strong>
+                                            <p class="text-sm mt-2">A: I create main.tf with AWS provider and ec2 resource, variables.tf for inputs, and outputs.tf for important values. Then I run: terraform init (download provider), terraform plan (preview), terraform apply (deploy).</p>
+                                        </div>
+
+                                        <div class="lab-content">
+                                            <strong>Q: What does terraform apply do?</strong>
+                                            <p class="text-sm mt-2">A: It compares your config to current state, calculates changes needed, and makes API calls to AWS to create/update/destroy resources. After confirmation, state is updated.</p>
+                                        </div>
+
+                                        <div class="lab-content">
+                                            <strong>Q: Why use outputs?</strong>
+                                            <p class="text-sm mt-2">A: Outputs expose resource attributes (like public IP) so they can be used by other modules or displayed to users. Essential for composition.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900/50 border-t border-slate-700 p-6 flex items-center justify-between gap-3">
+                                <button onclick="previousLab()" class="px-6 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all font-medium">← Previous</button>
+                                <button onclick="nextLab()" class="px-6 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-all font-medium">Next →</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const labs = [
+            {
+                title: 'Lab 1: Deploy Your First EC2',
+                desc: 'Get hands-on with Terraform basics',
+                difficulty: 'Beginner'
+            },
+            {
+                title: 'Lab 2: Using Variables & Outputs',
+                desc: 'Build flexible configurations',
+                difficulty: 'Beginner'
+            },
+            {
+                title: 'Lab 3: VPC with Networking',
+                desc: 'Create production VPC setup',
+                difficulty: 'Beginner'
+            },
+            {
+                title: 'Lab 4: Complete Web Stack',
+                desc: '3-tier with ALB and RDS',
+                difficulty: 'Intermediate'
+            },
+            {
+                title: 'Lab 5: Reusable Modules',
+                desc: 'Build and use Terraform modules',
+                difficulty: 'Intermediate'
+            },
+            {
+                title: 'Lab 6: State Management',
+                desc: 'S3 remote state with locking',
+                difficulty: 'Intermediate'
+            },
+            {
+                title: 'Lab 7: CI/CD with GitHub Actions',
+                desc: 'Automate deployments',
+                difficulty: 'Advanced'
+            },
+            {
+                title: 'Lab 8: Multi-Environment Setup',
+                desc: 'Dev, staging, production',
+                difficulty: 'Advanced'
+            },
+            {
+                title: 'Lab 9: Cost Optimization',
+                desc: 'Production efficiency patterns',
+                difficulty: 'Advanced'
+            },
+            {
+                title: 'Lab 10: Disaster Recovery',
+                desc: 'Backup and recovery procedures',
+                difficulty: 'Advanced'
+            }
+        ];
+
+        let currentLabIdx = 0;
+        let currentLabTab = 'overview';
+
+        function renderLabsList() {
+            const list = document.getElementById('labsList');
+            list.innerHTML = labs.map((lab, idx) => `
+                <button onclick="selectLab(${idx})" class="w-full p-3 rounded-lg text-left transition ${
+                    idx === currentLabIdx 
+                        ? 'bg-cyan-600 border-l-4 border-cyan-400' 
+                        : 'bg-slate-700/30 hover:bg-slate-700'
+                }">
+                    <div class="font-medium text-sm">${lab.title}</div>
+                    <div class="text-xs text-slate-400">${lab.difficulty}</div>
+                </button>
+            `).join('');
+        }
+
+        function selectLab(idx) {
+            currentLabIdx = idx;
+            const lab = labs[idx];
+            document.getElementById('labTitle').textContent = lab.title;
+            document.getElementById('labDesc').textContent = lab.desc;
+            renderLabsList();
+            switchLabTab('overview');
+        }
+
+        function switchLabTab(tab) {
+            currentLabTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            ['overviewContent', 'walkthroughContent', 'solutionContent', 'interviewContent'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(tab + 'Content').classList.remove('hidden');
+        }
+
+        function nextLab() {
+            if (currentLabIdx < labs.length - 1) {
+                selectLab(currentLabIdx + 1);
+            }
+        }
+
+        function previousLab() {
+            if (currentLabIdx > 0) {
+                selectLab(currentLabIdx - 1);
+            }
+        }
+
+        function switchMode(mode) {
+            const learnBtn = document.querySelector('[onclick="switchMode(\'learn\')"]');
+            const labsBtn = document.querySelector('[onclick="switchMode(\'labs\')"]');
+            const learnContent = document.getElementById('learn-content');
+            const labsContent = document.getElementById('labs-content');
+            
+            if (mode === 'learn') {
+                learnBtn.style.borderColor = '#06b6d4';
+                labsBtn.style.borderColor = '#475569';
+                learnContent.classList.remove('hidden');
+                labsContent.classList.add('hidden');
+            } else {
+                learnBtn.style.borderColor = '#475569';
+                labsBtn.style.borderColor = '#06b6d4';
+                learnContent.classList.add('hidden');
+                labsContent.classList.remove('hidden');
+            }
+        }
+
+        // Initialize
+        renderLabsList();
+    </script>
+</body>
+</html>
