@@ -128,7 +128,7 @@ Each lesson builds on previous knowledge, creating a comprehensive learning jour
 ### Via GitHub
 ```bash
 # Share this link:
-https://github.com/YOUR_USERNAME/terraform-mastery
+https://github.com/Duece79-collab/terraform-mastery
 ```
 
 ### Via GitHub Pages (Free Hosting)
