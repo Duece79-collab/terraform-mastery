@@ -66,7 +66,7 @@ A complete, interactive learning module for mastering Terraform from **beginner 
 ### Option 3: Download & Share
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/terraform-mastery.git
+git clone https://github.com/Duece79-collab/terraform-mastery
 
 # Open in browser
 open terraform-learning.html
@@ -134,7 +134,7 @@ https://github.com/YOUR_USERNAME/terraform-mastery
 ### Via GitHub Pages (Free Hosting)
 1. Fork this repo
 2. Settings → Pages → Deploy from main
-3. Share: `https://YOUR_USERNAME.github.io/terraform-mastery`
+3. Share: `[https://github.com/Duece79-collab/terraform-mastery)`
 
 ### Via Direct Download
 ```bash
